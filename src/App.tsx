@@ -24,11 +24,6 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-/**
- * 🔒 Rota protegida
- * Apenas verifica se está autenticado
- * NÃO exige perfil completo
- */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
 
@@ -55,7 +50,6 @@ function App() {
     initialize();
   }, [initialize]);
 
-  // ⏳ Loading global na inicialização
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -71,7 +65,7 @@ function App() {
 
         <main className="flex-grow">
           <Routes>
-            {/* 🌍 Rotas públicas */}
+            {/* 🌍 Rotas 100% Públicas */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Register />} />
@@ -79,12 +73,18 @@ function App() {
             <Route path="/parceiros" element={<Partners />} />
             <Route path="/loja" element={<Store />} />
 
-            {/* 🔐 Auth */}
+            {/* 🔓 Rotas "Vitrine" (Visitante vê, mas não interage) */}
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="/peneiras" element={<Tryouts />} />
+            <Route path="/social" element={<Social />} />
+            <Route path="/aulas/*" element={<LessonsHub />} />
+
+            {/* 🔐 Autenticação e Fluxo Interno */}
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route path="/auth/welcome" element={<Welcome />} />
 
-            {/* 🔒 Rotas protegidas */}
+            {/* 🔒 Rotas Protegidas (Exclusivas para Atletas Logados) */}
             <Route
               path="/perfil"
               element={
@@ -99,42 +99,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/aulas/*"
-              element={
-                <ProtectedRoute>
-                  <LessonsHub />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/ranking"
-              element={
-                <ProtectedRoute>
-                  <Ranking />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/peneiras"
-              element={
-                <ProtectedRoute>
-                  <Tryouts />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/social"
-              element={
-                <ProtectedRoute>
-                  <Social />
                 </ProtectedRoute>
               }
             />

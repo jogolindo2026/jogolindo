@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, TrendingUp, Award } from 'lucide-react';
+import { Trophy, Users, TrendingUp, Award, Lock } from 'lucide-react'; // Adicionado Lock
+import { Link } from 'react-router-dom'; // Adicionado Link
+import { useAuthStore } from '../store/authStore'; // Adicionado useAuthStore
 import { RankingPlayer, Gender, AgeCategory } from '../types';
 import { generateRankingData, categorizePlayersByAge, getCategoryLabel } from '../utils/rankingData';
 import PlayerCard from '../components/ranking/PlayerCard';
 import CategoryFilter from '../components/ranking/CategoryFilter';
 
 const Ranking: React.FC = () => {
+  const { isAuthenticated } = useAuthStore(); // Hook de autenticação
   const [allPlayers, setAllPlayers] = useState<RankingPlayer[]>([]);
   const [filteredPlayers, setFilteredPlayers] = useState<RankingPlayer[]>([]);
   const [selectedGender, setSelectedGender] = useState<Gender | 'all'>('all');
@@ -14,26 +17,21 @@ const Ranking: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading time
+    document.title = "Ranking de Talentos | Jogo Lindo";
     const timer = setTimeout(() => {
       const players = generateRankingData();
       setAllPlayers(players);
       setFilteredPlayers(players);
       setIsLoading(false);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     let filtered = [...allPlayers];
-
-    // Filter by gender
     if (selectedGender !== 'all') {
       filtered = filtered.filter(player => player.gender === selectedGender);
     }
-
-    // Filter by age category
     if (selectedAge !== 'all') {
       filtered = filtered.filter(player => {
         if (selectedAge === 'sub-15') return player.age <= 15;
@@ -43,25 +41,18 @@ const Ranking: React.FC = () => {
         return true;
       });
     }
-
-    // Sort by overall rating
     filtered.sort((a, b) => b.stats.overallRating - a.stats.overallRating);
-
     setFilteredPlayers(filtered);
   }, [allPlayers, selectedGender, selectedAge]);
 
-  const getStatsOverview = () => {
-    const totalPlayers = allPlayers.length;
-    const malePlayers = allPlayers.filter(p => p.gender === 'male').length;
-    const femalePlayers = allPlayers.filter(p => p.gender === 'female').length;
-    const avgRating = allPlayers.length > 0 
+  const stats = {
+    totalPlayers: allPlayers.length,
+    malePlayers: allPlayers.filter(p => p.gender === 'male').length,
+    femalePlayers: allPlayers.filter(p => p.gender === 'female').length,
+    avgRating: allPlayers.length > 0 
       ? Math.round(allPlayers.reduce((sum, p) => sum + p.stats.overallRating, 0) / allPlayers.length)
-      : 0;
-
-    return { totalPlayers, malePlayers, femalePlayers, avgRating };
+      : 0
   };
-
-  const stats = getStatsOverview();
 
   if (isLoading) {
     return (
@@ -77,134 +68,89 @@ const Ranking: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* BANNER DE AVISO PARA VISITANTES */}
+        {!isAuthenticated && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-secondary-100 border-l-4 border-secondary-500 p-6 mb-12 rounded-r-xl shadow-lg flex flex-col md:flex-row items-center justify-between"
+          >
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="bg-secondary-500 p-3 rounded-full mr-4 text-primary-900">
+                <Lock size={24} />
+              </div>
+              <div>
+                <h3 className="text-primary-900 font-bold text-lg uppercase">Área de Visitante</h3>
+                <p className="text-primary-800 text-sm">
+                  Você está vendo o ranking público. Para <strong>avaliar atletas ou postar seus vídeos</strong>, cadastre-se!
+                </p>
+              </div>
+            </div>
+            <Link to="/cadastro">
+              <button className="bg-primary-600 text-white px-6 py-2 rounded-md font-bold hover:bg-primary-700 transition-all shadow-md">
+                QUERO ME CADASTRAR
+              </button>
+            </Link>
+          </motion.div>
+        )}
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
           <div className="flex justify-center mb-4">
             <Trophy size={48} className="text-primary-500" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Ranking de Jogadores</h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Descubra os melhores talentos do futebol brasileiro organizados por categoria e desempenho
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 uppercase">Ranking de Talentos</h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto italic">
+            "Acompanhe o desenvolvimento dos futuros craques do futebol brasileiro."
           </p>
         </motion.div>
 
         {/* Stats Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
-        >
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Users size={32} className="text-blue-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.totalPlayers}</div>
-            <div className="text-sm text-gray-600">Total de Atletas</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-b-4 border-blue-500">
+            <div className="text-xl font-bold text-gray-900">{stats.totalPlayers}</div>
+            <div className="text-xs text-gray-500 uppercase font-bold">Atletas</div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Users size={32} className="text-blue-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.malePlayers}</div>
-            <div className="text-sm text-gray-600">Masculino</div>
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-b-4 border-blue-400">
+            <div className="text-xl font-bold text-gray-900">{stats.malePlayers}</div>
+            <div className="text-xs text-gray-500 uppercase font-bold">Masculino</div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Users size={32} className="text-pink-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.femalePlayers}</div>
-            <div className="text-sm text-gray-600">Feminino</div>
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-b-4 border-pink-400">
+            <div className="text-xl font-bold text-gray-900">{stats.femalePlayers}</div>
+            <div className="text-xs text-gray-500 uppercase font-bold">Feminino</div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Award size={32} className="text-yellow-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.avgRating}</div>
-            <div className="text-sm text-gray-600">Rating Médio</div>
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-b-4 border-secondary-500">
+            <div className="text-xl font-bold text-gray-900">{stats.avgRating}</div>
+            <div className="text-xs text-gray-500 uppercase font-bold">Rating Médio</div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <CategoryFilter
-            selectedGender={selectedGender}
-            selectedAge={selectedAge}
-            onGenderChange={setSelectedGender}
-            onAgeChange={setSelectedAge}
-          />
-        </motion.div>
+        <CategoryFilter
+          selectedGender={selectedGender}
+          selectedAge={selectedAge}
+          onGenderChange={setSelectedGender}
+          onAgeChange={setSelectedAge}
+        />
 
-        {/* Results header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {selectedGender === 'all' && selectedAge === 'all' 
-                ? 'Todos os Atletas'
-                : `${selectedGender !== 'all' ? (selectedGender === 'male' ? 'Masculino' : 'Feminino') : 'Todos'} ${
-                    selectedAge !== 'all' ? `- ${getCategoryLabel('male', selectedAge).split(' ')[1]}` : ''
-                  }`
-              }
-            </h2>
-            <div className="text-sm text-gray-600">
-              {filteredPlayers.length} atleta{filteredPlayers.length !== 1 ? 's' : ''} encontrado{filteredPlayers.length !== 1 ? 's' : ''}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Players Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-        >
+        {/* Results Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           {filteredPlayers.length > 0 ? (
             filteredPlayers.map((player, index) => (
-              <motion.div
-                key={player.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <PlayerCard player={player} rank={index + 1} />
-              </motion.div>
+              <PlayerCard key={player.id} player={player} rank={index + 1} />
             ))
           ) : (
             <div className="col-span-full text-center py-12">
               <TrendingUp size={48} className="text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhum atleta encontrado
-              </h3>
-              <p className="text-gray-600">
-                Tente ajustar os filtros para encontrar atletas nesta categoria.
-              </p>
+              <p className="text-gray-600">Nenhum atleta encontrado nesta categoria.</p>
             </div>
           )}
-        </motion.div>
-
-        {/* Load more button (for future pagination) */}
-        {filteredPlayers.length >= 30 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="text-center mt-12"
-          >
-            <button className="px-6 py-3 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors">
-              Carregar mais atletas
-            </button>
-          </motion.div>
-        )}
+        </div>
       </div>
     </div>
   );
