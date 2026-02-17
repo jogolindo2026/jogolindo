@@ -32,18 +32,12 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  // =====================
-  // STATE
-  // =====================
   user: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
   isEmailConfirmationRequired: false,
 
-  // =====================
-  // SYSTEM
-  // =====================
   clearError: () => set({ error: null }),
 
   testSupabaseConnection: async () => {
@@ -51,17 +45,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     return await testConnection();
   },
 
-  // =====================
-  // INITIALIZE
-  // =====================
   initialize: async () => {
     try {
       console.log('🚀 Inicializando Auth...');
-
       set({ isLoading: true });
-
       await get().fetchUserProfile();
-
     } catch (err) {
       console.error('❌ Erro no initialize:', err);
     } finally {
@@ -70,19 +58,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   // =====================
-  // FETCH PROFILE
+  // FETCH PROFILE (CORRIGIDO)
   // =====================
   fetchUserProfile: async () => {
     try {
       console.log('🔄 Buscando usuário...');
-
       const { data, error } = await supabase.auth.getUser();
 
       if (error || !data.user) {
-        set({
-          user: null,
-          isAuthenticated: false
-        });
+        set({ user: null, isAuthenticated: false });
         return;
       }
 
@@ -98,6 +82,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       if (userData) {
+        // Mapeamento simplificado: nomes iguais aos da tabela do Supabase
         const user: User = {
           id: userData.id,
           email: userData.email,
@@ -105,60 +90,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           role: userData.role,
           phone: userData.phone || '',
           gender: userData.gender || '',
-          birthDate: userData.birth_date || '',
+          birth_date: userData.birth_date || '', // Linha 94 corrigida
           country: userData.country || '',
           city: userData.city || '',
           position: userData.position || '',
           company: userData.company || '',
-          isProfilePublic: userData.is_profile_public ?? true,
-          profilePicture: userData.profile_picture || '',
+          is_profile_public: userData.is_profile_public ?? true,
+          profile_picture: userData.profile_picture || '',
           height: userData.height || undefined,
           weight: userData.weight || undefined,
-          createdAt: userData.created_at,
+          created_at: userData.created_at,
         };
 
-        set({
-          user,
-          isAuthenticated: true
-        });
+        set({ user, isAuthenticated: true });
       }
-
     } catch (err) {
       console.error('❌ Erro fetchUserProfile:', err);
-
-      set({
-        user: null,
-        isAuthenticated: false
-      });
+      set({ user: null, isAuthenticated: false });
     }
   },
 
-  // =====================
-  // LOGIN
-  // =====================
   login: async (email, password) => {
     set({ isLoading: true, error: null });
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-
       if (data.user) {
         await get().fetchUserProfile();
         return true;
       }
-
       return false;
-
     } catch (err: any) {
-      set({
-        error: err.message,
-        isLoading: false
-      });
+      set({ error: err.message, isLoading: false });
       return false;
     } finally {
       set({ isLoading: false });
@@ -167,48 +130,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   loginWithGoogle: async () => {
     set({ isLoading: true, error: null });
-
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
+        options: { redirectTo: `${window.location.origin}/auth/callback` }
       });
-
       if (error) throw error;
-
       return true;
-
     } catch (err: any) {
-      set({
-        error: err.message,
-        isLoading: false
-      });
+      set({ error: err.message, isLoading: false });
       return false;
     }
   },
 
-  // =====================
-  // REGISTER
-  // =====================
   register: async (userData, password) => {
     set({ isLoading: true, error: null });
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email: userData.email!,
         password,
-        options: {
-          data: {
-            name: userData.name,
-            role: userData.role
-          }
-        }
+        options: { data: { name: userData.name, role: userData.role } }
       });
-
       if (error) throw error;
-
       if (data.user) {
         await supabase.from('users').insert([{
           id: data.user.id,
@@ -216,14 +159,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           name: userData.name,
           role: userData.role
         }]);
-
         if (!data.session) {
           set({ isEmailConfirmationRequired: true });
         } else {
           await get().fetchUserProfile();
         }
       }
-
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -231,12 +172,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  // =====================
-  // PASSWORD
-  // =====================
   resetPassword: async (email) => {
     set({ isLoading: true, error: null });
-
     try {
       await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`
@@ -250,11 +187,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updatePassword: async (newPassword) => {
     set({ isLoading: true, error: null });
-
     try {
-      await supabase.auth.updateUser({
-        password: newPassword
-      });
+      await supabase.auth.updateUser({ password: newPassword });
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -264,12 +198,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   resendConfirmation: async (email) => {
     set({ isLoading: true, error: null });
-
     try {
-      await supabase.auth.resend({
-        type: 'signup',
-        email
-      });
+      await supabase.auth.resend({ type: 'signup', email });
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -277,26 +207,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  // =====================
-  // PROFILE
-  // =====================
   updateProfile: async (userData) => {
     set({ isLoading: true, error: null });
-
     try {
       const user = get().user;
-
       if (!user) throw new Error('Não autenticado');
-
-      const { error } = await supabase
-        .from('users')
-        .update(userData)
-        .eq('id', user.id);
-
+      const { error } = await supabase.from('users').update(userData).eq('id', user.id);
       if (error) throw error;
-
       await get().fetchUserProfile();
-
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -306,20 +224,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   deleteProfile: async () => {
     set({ isLoading: true, error: null });
-
     try {
       const user = get().user;
-
       if (!user) return;
-
       await supabase.from('users').delete().eq('id', user.id);
       await supabase.auth.signOut();
-
-      set({
-        user: null,
-        isAuthenticated: false
-      });
-
+      set({ user: null, isAuthenticated: false });
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -327,13 +237,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  // =====================
-  // LOGOUT
-  // =====================
   logout: async () => {
     try {
       await supabase.auth.signOut();
-
       set({
         user: null,
         isAuthenticated: false,
@@ -341,9 +247,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         isEmailConfirmationRequired: false
       });
-
       console.log('✅ Logout OK');
-
     } catch (err) {
       console.error('❌ Erro logout:', err);
     }

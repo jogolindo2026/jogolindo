@@ -59,12 +59,17 @@ const Tryouts: React.FC = () => {
   };
 
   const stats = {
-    activeTryouts: allTryouts.filter(t => t.isActive).length,
+    // 🛡️ Ajustado para usar is_active (com underline)
+    activeTryouts: allTryouts.filter(t => t.is_active).length,
+    
+    // 🛡️ Ajustado para usar cost (se houver no tipo) ou apenas 0
     freeTryouts: allTryouts.filter(t => t.cost === 0).length,
-    totalSpots: allTryouts.reduce((sum, t) => sum + (t.maxParticipants - t.currentParticipants), 0),
+    
+    // 🛡️ Ajustado para usar max_participants e current_participants
+    totalSpots: allTryouts.reduce((sum, t) => sum + (t.max_participants - t.current_participants), 0),
+    
     upcomingTryouts: allTryouts.filter(t => new Date(t.date) > new Date()).length
   };
-
   const userLocation = searchCity && searchState ? `${searchCity}, ${searchState}` : searchCity || searchState;
 
   if (isLoading) {

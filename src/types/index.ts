@@ -1,67 +1,57 @@
-export type UserRole = 'player' | 'businessman';
+// 1. Definições de Tipos Base
+export type UserRole = 'atleta' | 'empresario';
+export type PlayerPosition = 'goleiro' | 'zagueiro' | 'lateral' | 'meio' | 'atacante';
+export type Gender = 'masculino' | 'feminino';
+export type AgeCategory = 'sub-15' | 'sub-17' | 'sub-20' | 'profissional';
+export type LessonModule = 'technique' | 'tactics' | 'health' | 'citizenship';
 
+// 2. Interface de Usuário Principal (Sincronizada com Supabase)
 export interface User {
   id: string;
   email: string;
-  name: string;
-  role: UserRole;
-  // Player specific fields
-  height?: number;
-  weight?: number;
-  shoeSize?: number;
-  position?: PlayerPosition;
-  // Common optional fields
+  name?: string;
+  role?: UserRole;
   phone?: string;
   gender?: string;
-  birthDate?: string;
+  birth_date?: string; 
   country?: string;
   city?: string;
-  // Businessman specific fields
-  company?: string; // For businessmen - company or club they represent
-  isProfilePublic?: boolean; // For businessmen - whether profile is visible to others
-  profilePicture?: string;
-  createdAt: string;
+  position?: string;
+  profile_picture?: string; 
+  company?: string;
+  is_profile_public?: boolean;
+  height?: number;
+  weight?: number;
+  created_at?: string;
 }
 
-export type PlayerPosition = 'goalkeeper' | 'defender' | 'midfielder' | 'forward';
-
+// 3. Sistema de Videoaulas e Conteúdo
 export interface VideoLesson {
   id: string;
   title: string;
   description: string;
-  videoUrl: string;
-  thumbnailUrl: string;
+  video_url: string;
+  thumbnail_url: string;
   module: LessonModule;
   topic: string;
   duration: number;
-  createdAt: string;
+  created_at: string;
 }
-
-export type LessonModule = 'technique' | 'tactics' | 'health' | 'citizenship';
 
 export interface UserVideo {
   id: string;
-  userId: string;
+  user_id: string;
   title: string;
   description: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-  createdAt: string;
-  ratings: VideoRating[];
-  averageRating: number;
+  video_url: string;
+  thumbnail_url: string;
+  created_at: string;
+  average_rating: number;
 }
 
-export interface VideoRating {
-  id: string;
-  userId: string;
-  videoId: string;
-  rating: number;
-  createdAt: string;
-}
-
-// New interfaces for ranking system
+// 4. Estatísticas Técnicas e Ranking (O Coração do BI)
 export interface PlayerStats {
-  // Technical skills (1-5)
+  // Habilidades técnicas (1-5)
   passing: number;
   shooting: number;
   dribbling: number;
@@ -69,36 +59,32 @@ export interface PlayerStats {
   strength: number;
   jumping: number;
   
-  // Performance stats
+  // Performance
   goals: number;
-  penaltySaves?: number; // Only for goalkeepers
   assists: number;
-  matchesPlayed: number;
+  matches_played: number;
+  penalty_saves?: number; // Exclusivo para goleiros
   
-  // Career info
+  // Carreira
   clubs: string[];
   agent?: string;
-  overallRating: number;
+  overall_rating: number; // Escala 0-100
 }
 
 export interface RankingPlayer extends User {
   stats: PlayerStats;
   age: number;
-  profilePicture: string;
 }
-
-export type AgeCategory = 'sub-15' | 'sub-17' | 'sub-20' | 'profissional';
-export type Gender = 'male' | 'female';
 
 export interface RankingCategory {
   id: string;
   name: string;
   gender: Gender;
-  ageCategory: AgeCategory;
+  age_category: AgeCategory;
   players: RankingPlayer[];
 }
 
-// Tryout/Peneira interfaces
+// 5. Gestão de Peneiras / Tryouts (Detalhado)
 export interface TryoutEvent {
   id: string;
   title: string;
@@ -111,11 +97,11 @@ export interface TryoutEvent {
   city: string;
   state: string;
   region: string;
-  ageRange: string;
+  age_range: string;
   positions: PlayerPosition[];
-  maxParticipants: number;
-  currentParticipants: number;
-  registrationDeadline: string;
+  max_participants: number;
+  current_participants: number;
+  registration_deadline: string;
   requirements: string[];
   contact: {
     name: string;
@@ -123,16 +109,17 @@ export interface TryoutEvent {
     email: string;
   };
   cost: number;
-  isActive: boolean;
-  imageUrl: string;
+  is_active: boolean;
+  image_url: string;
 }
 
+// 6. E-commerce / Produtos (Para as camisas sublimadas e e-books)
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
-  imageUrl: string;
+  image_url: string;
   category: string;
-  inStock: boolean;
+  in_stock: boolean;
 }

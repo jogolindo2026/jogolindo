@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Users, TrendingUp, Award, Lock } from 'lucide-react'; // Adicionado Lock
+import { Trophy, TrendingUp, Lock } from 'lucide-react'; // Adicionado Lock
 import { Link } from 'react-router-dom'; // Adicionado Link
 import { useAuthStore } from '../store/authStore'; // Adicionado useAuthStore
 import { RankingPlayer, Gender, AgeCategory } from '../types';
-import { generateRankingData, categorizePlayersByAge, getCategoryLabel } from '../utils/rankingData';
+import { generateRankingData } from '../utils/rankingData';
 import PlayerCard from '../components/ranking/PlayerCard';
 import CategoryFilter from '../components/ranking/CategoryFilter';
 
@@ -41,7 +41,8 @@ const Ranking: React.FC = () => {
         return true;
       });
     }
-    filtered.sort((a, b) => b.stats.overallRating - a.stats.overallRating);
+    // 🛡️ Ajustado para overall_rating (Snake Case)
+filtered.sort((a, b) => b.stats.overall_rating - a.stats.overall_rating);
     setFilteredPlayers(filtered);
   }, [allPlayers, selectedGender, selectedAge]);
 
@@ -49,9 +50,10 @@ const Ranking: React.FC = () => {
     totalPlayers: allPlayers.length,
     malePlayers: allPlayers.filter(p => p.gender === 'male').length,
     femalePlayers: allPlayers.filter(p => p.gender === 'female').length,
-    avgRating: allPlayers.length > 0 
-      ? Math.round(allPlayers.reduce((sum, p) => sum + p.stats.overallRating, 0) / allPlayers.length)
-      : 0
+    // 🛡️ Substitua a linha do avgRating por esta:
+avgRating: allPlayers.length > 0 
+  ? Math.round(allPlayers.reduce((sum, p) => sum + p.stats.overall_rating, 0) / allPlayers.length)
+  : 0
   };
 
   if (isLoading) {
