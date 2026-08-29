@@ -18,7 +18,7 @@ import {
   Wallet,
 } from 'lucide-react';
 
-import logoJogoLindo from '@/assets/jogolindo_logo.png';
+import logoJogoLindo from '@/assets/JogoLindo_logo.png';
 
 interface LandingPageProps {
   onEnter: () => void;
