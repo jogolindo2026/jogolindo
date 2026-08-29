@@ -26,7 +26,7 @@ interface LandingPageProps {
 }
 
 const heroImage =
-  'https://images.pexels.com/photos/50713/football-ball-sport-soccer-50713.jpeg';
+  'src/assets/gabriel.png';
 
 const demoSlides = [
   {
@@ -235,7 +235,7 @@ export function LandingPage({ onEnter, onCreate }: LandingPageProps) {
           backgroundSize: 'cover',
         }}
       >
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950/95 via-emerald-900/85 to-emerald-950/55" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950/50 via-emerald-900/85 to-emerald-950/55" />
 
         <div className="mx-auto grid min-h-[590px] max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_.85fr]">
           <div>
