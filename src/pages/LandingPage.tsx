@@ -19,14 +19,14 @@ import {
 } from 'lucide-react';
 
 import logoJogoLindo from '@/assets/JogoLindo_logo.png';
+import heroGabriel from '@/assets/gabriel.png';
 
 interface LandingPageProps {
   onEnter: () => void;
   onCreate: () => void;
 }
 
-const heroImage =
-  'src/assets/gabriel.png';
+const heroImage = heroGabriel;
 
 const demoSlides = [
   {
