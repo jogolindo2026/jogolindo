@@ -1,20 +1,52 @@
-export type Position = 'Goleiro' | 'Zagueiro' | 'Lateral' | 'Meio-campo' | 'Atacante';
+export type Position =
+  | 'Goleiro'
+  | 'Zagueiro'
+  | 'Lateral'
+  | 'Meio-campo'
+  | 'Atacante';
 
-export type Category = 'Mensalista' | 'Convidado' | 'Goleiro' | 'Juiz';
+export type Category =
+  | 'Mensalista'
+  | 'Diarista'
+  | 'Convidado'
+  | 'Goleiro'
+  | 'Juiz';
 
-export type PaymentStatus = 'pago' | 'pendente' | 'atrasado' | 'isento' | 'liberado';
+export type PaymentStatus =
+  | 'pago'
+  | 'pendente'
+  | 'atrasado'
+  | 'isento'
+  | 'liberado';
 
-export type MemberStatus = 'ativo' | 'suspenso' | 'bloqueado';
+export type MemberStatus =
+  | 'ativo'
+  | 'suspenso'
+  | 'bloqueado';
 
-export type EventType = 'regular' | 'extra';
+export type EventType =
+  | 'regular'
+  | 'extra';
 
-export type EventStatus = 'rascunho' | 'inscricoes_abertas' | 'em_andamento' | 'encerrado';
+export type EventStatus =
+  | 'rascunho'
+  | 'inscricoes_abertas'
+  | 'em_andamento'
+  | 'encerrado';
 
-export type TeamColor = 'verde' | 'branco';
+export type TeamColor =
+  | 'verde'
+  | 'branco';
 
-export type MatchStatus = 'agendado' | 'em_andamento' | 'finalizado' | 'penaltis';
+export type MatchStatus =
+  | 'agendado'
+  | 'em_andamento'
+  | 'finalizado'
+  | 'penaltis';
 
-export type CardColor = 'amarelo' | 'vermelho';
+export type CardColor =
+  | 'amarelo'
+  | 'vermelho';
 
 export type DisciplineAction =
   | 'advertencia'
@@ -44,50 +76,95 @@ export interface User {
 
 export interface Pelada {
   id: string;
+
   name: string;
   image?: string;
+
   place: string;
   mapLink?: string;
+
   days: string[];
   startTime: string;
   endTime: string;
   extraSchedules?: string[];
+
+  // Capacidade
+  maxParticipants: number;
+  eventCapacity: number;
+
+  // Formato da pelada
   playersPerTeam: number;
-  hasGoalkeeper: boolean;
+  simultaneousTeams: number;
   maxReserves: number;
+
+  // Goleiros
+  hasGoalkeeper: boolean;
+  goalkeeperCount: number;
+  goalkeeperCountsInTeam: boolean;
+
+  // Juiz
+  hasReferee: boolean;
+
+  // Duração
+  periods: 1 | 2;
+  periodMinutes: number;
+
+  // Valores
   monthlyFee: number;
+  dailyFee: number;
   guestFee: number;
   goalkeeperFee: number;
-  dueDate: number;
-  maxParticipants: number;
-  inviteLink: string;
   refereeFee: number;
+
+  // Financeiro
+  dueDate: number;
+
+  // Convite
+  inviteLink: string;
+
+  // Controle
+  active: boolean;
   createdAt: string;
 }
 
 export interface Member {
   id: string;
   peladaId: string;
+
+  // Identificação
+  cpf?: string;
   name: string;
+  nickname?: string;
+  birthDate?: string;
+
   avatar?: string;
   phone?: string;
   email?: string;
+
   position: Position;
   category: Category;
+
   status: MemberStatus;
   paymentStatus: PaymentStatus;
   monthlyFeePaid: boolean;
+
+  // Estatísticas
   gamesPlayed: number;
   wins: number;
   draws: number;
   losses: number;
   goals: number;
   assists: number;
+
+  // Disciplina
   yellowCards: number;
   redCards: number;
   suspensionsLeft: number;
+
+  // Participação / comportamento
   presentCount: number;
   behaviorScore: number;
+
   joinedAt: string;
 
   // Informações adicionais de disciplina
@@ -160,11 +237,20 @@ export interface Payment {
   peladaId: string;
   memberId: string;
   memberName: string;
-  type: 'mensalidade' | 'convidado' | 'goleiro' | 'ativacao' | 'multa';
+
+  type:
+    | 'mensalidade'
+    | 'diarista'
+    | 'convidado'
+    | 'goleiro'
+    | 'ativacao'
+    | 'multa';
+
   amount: number;
   dueDate: string;
   paidDate: string | null;
   status: PaymentStatus;
+
   pixCode?: string;
   boletoCode?: string;
   disciplineRecordId?: string;
@@ -187,9 +273,11 @@ export interface DisciplineRecord {
   minutesOut?: number;
   suspensionEvents?: number;
   suspensionUntil?: string;
+
   fineAmount?: number;
   finePaymentId?: string;
   finePaidDate?: string | null;
+
   returnPolicy?: ReturnPolicy;
   ruleSnapshot?: string;
 }
@@ -222,7 +310,12 @@ export interface MatchFormat {
   playersPerTeam: number;
   hasGoalkeeper: boolean;
   maxReserves: number;
-  substitutionType: 'livre' | 'somente_parada' | 'sem_substituicao';
+
+  substitutionType:
+    | 'livre'
+    | 'somente_parada'
+    | 'sem_substituicao';
+
   canReturnToGame: boolean;
 }
 
@@ -230,16 +323,35 @@ export interface MatchDuration {
   periods: 1 | 2;
   periodMinutes: number;
   intervalMinutes: number;
-  clockType: 'corrido' | 'parado_juiz';
+
+  clockType:
+    | 'corrido'
+    | 'parado_juiz';
+
   maxWaitMinutes: number;
   lateLimitMinutes: number;
-  endCriterion: 'encerrar' | 'prorrogacao' | 'penaltis' | 'gol_ouro';
+
+  endCriterion:
+    | 'encerrar'
+    | 'prorrogacao'
+    | 'penaltis'
+    | 'gol_ouro';
 }
 
 export interface RefereeSettings {
-  hasReferee: 'nao' | 'voluntario' | 'remunerado';
+  hasReferee:
+    | 'nao'
+    | 'voluntario'
+    | 'remunerado';
+
   refereeFee: number;
-  refereePaymentSplit: 'todos_presentes' | 'mensalistas' | 'caixa_pelada' | 'pago_master';
+
+  refereePaymentSplit:
+    | 'todos_presentes'
+    | 'mensalistas'
+    | 'caixa_pelada'
+    | 'pago_master';
+
   refereeName?: string;
   refereePix?: string;
 }
@@ -248,21 +360,47 @@ export interface GoalkeeperSettings {
   isRequired: boolean;
   isMonthly: boolean;
   feePerEvent: number;
-  paymentFrequency: 'evento' | 'semanal' | 'mensal';
+
+  paymentFrequency:
+    | 'evento'
+    | 'semanal'
+    | 'mensal';
+
   paymentStatus: PaymentStatus;
   fixedGoalkeeper?: boolean;
 }
 
 export interface QueueSettings {
-  entryOrder: 'chegada' | 'sorteio' | 'presenca' | 'manual';
+  entryOrder:
+    | 'chegada'
+    | 'sorteio'
+    | 'presenca'
+    | 'manual';
 }
 
 export interface RotationSettings {
-  winnerStays: 'sai' | 'permanece' | 'permanece_ate_limite';
+  winnerStays:
+    | 'sai'
+    | 'permanece'
+    | 'permanece_ate_limite';
+
   winnerLimit: number;
-  winnerAtLimit: 'sai_todo' | 'troca_parte' | 'manual';
-  loserAction: 'sai_automatico' | 'permanece' | 'manual';
-  teamFormation: 'sorteio_simples' | 'equilibrar_posicao' | 'equilibrar_nivel' | 'manual';
+
+  winnerAtLimit:
+    | 'sai_todo'
+    | 'troca_parte'
+    | 'manual';
+
+  loserAction:
+    | 'sai_automatico'
+    | 'permanece'
+    | 'manual';
+
+  teamFormation:
+    | 'sorteio_simples'
+    | 'equilibrar_posicao'
+    | 'equilibrar_nivel'
+    | 'manual';
 }
 
 export interface TieSettings {
@@ -278,31 +416,58 @@ export interface TieSettings {
 
 export interface DisciplineSettings {
   // Estrutura antiga — mantida para não quebrar o seed atual
-  yellowConsequence: 'advertencia' | 'minutos_fora' | 'sai_partida' | 'vermelho';
+  yellowConsequence:
+    | 'advertencia'
+    | 'minutos_fora'
+    | 'sai_partida'
+    | 'vermelho';
+
   yellowMinutesOut: number;
   twoYellowSameEvent: boolean;
   yellowMonthLimit: number;
-  yellowLimitConsequence: 'advertencia' | 'suspensao_uma' | 'suspensao_x' | 'bloqueio_analise';
+
+  yellowLimitConsequence:
+    | 'advertencia'
+    | 'suspensao_uma'
+    | 'suspensao_x'
+    | 'bloqueio_analise';
+
   yellowSuspensionCount: number;
-  redConsequence: 'sai_partida' | 'minutos_fora' | 'fora_evento' | 'suspenso_x';
+
+  redConsequence:
+    | 'sai_partida'
+    | 'minutos_fora'
+    | 'fora_evento'
+    | 'suspenso_x';
+
   redMinutesOut: number;
   redSuspensionCount: number;
-  redMonthLimit1: 'advertencia' | 'suspensao';
+
+  redMonthLimit1:
+    | 'advertencia'
+    | 'suspensao';
+
   redMonthLimit2: number;
   redMonthLimit3: 'expulsao';
 
   // Novas regras — configuráveis por cada pelada
-  yellowAccumulationPeriod?: 'mes' | 'temporada';
+  yellowAccumulationPeriod?:
+    | 'mes'
+    | 'temporada';
+
   yellowAccumulatedAction?: DisciplineAction;
+
   yellowFineEnabled?: boolean;
   yellowFineAmount?: number;
 
   redAction?: DisciplineAction;
   redSuspensionUntil?: string;
+
   redFineEnabled?: boolean;
   redFineAmount?: number;
 
   returnPolicy?: ReturnPolicy;
+
   fineDueDays?: number;
   fineBlocksReturn?: boolean;
 }
@@ -319,9 +484,21 @@ export interface BehaviorRankingSettings {
 }
 
 export interface FinancialRules {
-  inadimplentCanPlay: 'nao' | 'paga_diaria' | 'manual';
-  guestCanEnter: 'sim_taxa' | 'sim_isento' | 'nao';
-  guestQueuePosition: 'normal' | 'apos_mensalistas' | 'somente_vaga';
+  inadimplentCanPlay:
+    | 'nao'
+    | 'paga_diaria'
+    | 'manual';
+
+  guestCanEnter:
+    | 'sim_taxa'
+    | 'sim_isento'
+    | 'nao';
+
+  guestQueuePosition:
+    | 'normal'
+    | 'apos_mensalistas'
+    | 'somente_vaga';
+
   sharedCosts: {
     quadra: boolean;
     juiz: boolean;
@@ -330,7 +507,12 @@ export interface FinancialRules {
     bola: boolean;
     outros: boolean;
   };
-  costSplit: 'todos_presentes' | 'mensalistas' | 'incluso_mensalidade' | 'caixa_pelada';
+
+  costSplit:
+    | 'todos_presentes'
+    | 'mensalistas'
+    | 'incluso_mensalidade'
+    | 'caixa_pelada';
 }
 
 export interface RuleSettings {

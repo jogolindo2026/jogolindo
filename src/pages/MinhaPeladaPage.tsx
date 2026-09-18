@@ -24,7 +24,7 @@ export function MinhaPeladaPage() {
   };
 
   const shareWhatsApp = () => {
-    const msg = `Olá! Você foi convidado para a ${form.name} na Flamilia. Acesse: ${form.inviteLink}`;
+    const msg = `Olá! Você foi convidado para a ${form.name} na Jogolindo. Acesse: ${form.inviteLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

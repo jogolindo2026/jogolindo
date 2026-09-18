@@ -106,7 +106,7 @@ const memberSeeds: Array<Partial<Member> & { name: string; position: Member['pos
   { name: 'André Martins', position: 'Meio-campo', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 21, wins: 13, draws: 2, losses: 6, goals: 15, assists: 14, yellowCards: 2, redCards: 0, presentCount: 21, behaviorScore: 90 },
   { name: 'Gustavo Lima', position: 'Atacante', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 18, wins: 9, draws: 3, losses: 6, goals: 22, assists: 6, yellowCards: 1, redCards: 0, presentCount: 18, behaviorScore: 93 },
   { name: 'Diego Ramos', position: 'Zagueiro', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 17, wins: 8, draws: 4, losses: 5, goals: 2, assists: 1, yellowCards: 4, redCards: 0, presentCount: 17, behaviorScore: 88 },
-  { name: 'Marcelo Pinto', position: 'Lateral', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 16, wins: 8, draw4: 3, draws: 3, losses: 5, goals: 5, assists: 7, yellowCards: 2, redCards: 0, presentCount: 16, behaviorScore: 91 } as Member,
+  { name: 'Marcelo Pinto', position: 'Lateral', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 16, wins: 8, draws: 3, losses: 5, goals: 5, assists: 7, yellowCards: 2, redCards: 0, presentCount: 16, behaviorScore: 91 } as Member,
   { name: 'Pedro Henrique', position: 'Atacante', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 15, wins: 7, draws: 4, losses: 4, goals: 12, assists: 10, yellowCards: 0, redCards: 0, presentCount: 15, behaviorScore: 98 },
   { name: 'Rafael Gomes', position: 'Meio-campo', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 14, wins: 7, draws: 2, losses: 5, goals: 9, assists: 11, yellowCards: 3, redCards: 0, presentCount: 14, behaviorScore: 87 },
   { name: 'Thiago Barbosa', position: 'Zagueiro', category: 'Mensalista', paymentStatus: 'pago', monthlyFeePaid: true, gamesPlayed: 13, wins: 6, draws: 3, losses: 4, goals: 3, assists: 2, yellowCards: 2, redCards: 0, presentCount: 13, behaviorScore: 89 },
@@ -379,32 +379,63 @@ export const seedData: AppData = {
   user: {
     id: 'user-1',
     name: 'Master',
-    email: 'master@flamilia.com',
+    email: 'master@jogolindo.com',
     phone: '(21) 99999-0000',
     isMaster: true,
     activationPaid: true,
   },
   pelada: {
-    id: 'pelada-1',
-    name: 'Pelada do Flamengo',
-    place: 'Arena do Bairro',
-    mapLink: 'https://maps.google.com/?q=Arena+do+Bairro',
-    days: ['Quarta-feira', 'Sexta-feira'],
-    startTime: '20:00',
-    endTime: '22:00',
-    extraSchedules: [],
-    playersPerTeam: 6,
-    hasGoalkeeper: true,
-    maxReserves: 2,
-    monthlyFee: 100,
-    guestFee: 25,
-    goalkeeperFee: 80,
-    dueDate: 10,
-    maxParticipants: 30,
-    inviteLink: 'https://flamilia.app/p/pelada-flamengo',
-    refereeFee: 80,
-    createdAt: daysAgo(120),
-  },
+  id: 'pelada-1',
+
+  name: 'Pelada do Flamengo',
+  image: undefined,
+
+  place: 'Arena do Bairro',
+  mapLink: 'https://maps.google.com/?q=Arena+do+Bairro',
+
+  days: ['Quarta-feira', 'Sexta-feira'],
+  startTime: '20:00',
+  endTime: '22:00',
+  extraSchedules: [],
+
+  // Capacidade
+  maxParticipants: 30,
+  eventCapacity: 22,
+
+  // Formato
+  playersPerTeam: 6,
+  simultaneousTeams: 2,
+  maxReserves: 2,
+
+  // Goleiros
+  hasGoalkeeper: true,
+  goalkeeperCount: 2,
+  goalkeeperCountsInTeam: true,
+
+  // Juiz
+  hasReferee: true,
+
+  // Duração
+  periods: 2,
+  periodMinutes: 15,
+
+  // Valores
+  monthlyFee: 100,
+  dailyFee: 30,
+  guestFee: 25,
+  goalkeeperFee: 80,
+  refereeFee: 80,
+
+  // Financeiro
+  dueDate: 10,
+
+  // Convite
+  inviteLink: 'https://jogolindo.com.br/p/pelada-flamengo',
+
+  // Controle
+  active: true,
+  createdAt: daysAgo(120),
+},
   members,
   events,
   attendance,

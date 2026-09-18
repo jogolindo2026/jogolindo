@@ -52,7 +52,7 @@ export function DashboardLayout({ children, currentPath, onNavigate, peladaName 
               <Trophy size={20} className="text-white" />
             </div>
             <div>
-              <p className="font-bold text-gray-900 leading-tight">FLAMILIA</p>
+              <p className="font-bold text-gray-900 leading-tight">JOGOLINDO</p>
               <p className="text-xs text-gray-400 leading-tight">{peladaName}</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export function DashboardLayout({ children, currentPath, onNavigate, peladaName 
             <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
               <Trophy size={16} className="text-white" />
             </div>
-            <span className="font-bold text-gray-900 text-sm">FLAMILIA</span>
+            <span className="font-bold text-gray-900 text-sm">JOGOLINDO</span>
           </div>
           <span className="text-sm font-medium text-gray-500">{currentLabel}</span>
         </header>
