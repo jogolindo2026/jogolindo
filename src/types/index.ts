@@ -64,6 +64,28 @@ export type ReturnPolicy =
   | 'pagamento_multa'
   | 'aprovacao_e_multa';
 
+// ---------- Novos tipos financeiros / operacionais ----------
+
+export type PaymentProvider =
+  | 'manual'
+  | 'asaas';
+
+export type DailyCreditStatus =
+  | 'disponivel'
+  | 'utilizado'
+  | 'cancelado';
+
+export type ParticipationApprovalStatus =
+  | 'aguardando'
+  | 'liberado'
+  | 'recusado';
+
+export type MembershipApprovalStatus =
+  | 'nao_solicitado'
+  | 'aguardando'
+  | 'aprovado'
+  | 'recusado';
+
 export interface User {
   id: string;
   name: string;
@@ -81,226 +103,424 @@ export interface Pelada {
   image?: string;
 
   place: string;
+
+  // Campo/quadra dentro do local
+  field?: string;
+
   mapLink?: string;
 
   days: string[];
+
   startTime: string;
   endTime: string;
+
   extraSchedules?: string[];
 
   // Capacidade
+
   maxParticipants: number;
   eventCapacity: number;
 
   // Formato da pelada
+
   playersPerTeam: number;
   simultaneousTeams: number;
   maxReserves: number;
 
   // Goleiros
+
   hasGoalkeeper: boolean;
   goalkeeperCount: number;
   goalkeeperCountsInTeam: boolean;
 
   // Juiz
+
   hasReferee: boolean;
 
-  // Duração
+  // Duração padrão
+
   periods: 1 | 2;
   periodMinutes: number;
 
+  // Regra especial da primeira partida
+
+  firstMatchMinutes?: number;
+  firstMatchMonthlyOnly?: boolean;
+
+  // Regra das demais partidas
+
+  regularMatchMinutes?: number;
+
+  // Partida pode terminar antes do tempo ao atingir
+  // determinada quantidade de gols
+  goalsToEndMatch?: number;
+
   // Valores
+
   monthlyFee: number;
+
+  // Valor base da diária
   dailyFee: number;
+
   guestFee: number;
+
+  // Taxa de utilização/lavagem do colete da pelada
+  vestLaundryFee?: number;
+
   goalkeeperFee: number;
   refereeFee: number;
 
   // Financeiro
+
   dueDate: number;
 
-  // Convite
+  paymentProvider?: PaymentProvider;
+
+  // Convites
+
   inviteLink: string;
 
+  // Links separados por modalidade
+  dailyInviteLink?: string;
+  monthlyInviteLink?: string;
+
   // Controle
+
   active: boolean;
   createdAt: string;
 }
 
 export interface Member {
   id: string;
+
   peladaId: string;
 
   // Identificação
+
   cpf?: string;
+
   name: string;
+
   nickname?: string;
+
   birthDate?: string;
 
   avatar?: string;
+
   phone?: string;
+
   email?: string;
 
   position: Position;
+
   category: Category;
 
   status: MemberStatus;
+
   paymentStatus: PaymentStatus;
+
   monthlyFeePaid: boolean;
 
+  // Aprovação / acesso à pelada
+
+  participationApproval?: ParticipationApprovalStatus;
+
+  membershipApproval?: MembershipApprovalStatus;
+
   // Estatísticas
+
   gamesPlayed: number;
+
   wins: number;
+
   draws: number;
+
   losses: number;
+
   goals: number;
+
   assists: number;
 
   // Disciplina
+
   yellowCards: number;
+
   redCards: number;
+
   suspensionsLeft: number;
 
   // Participação / comportamento
+
   presentCount: number;
+
   behaviorScore: number;
 
   joinedAt: string;
 
   // Informações adicionais de disciplina
+
   disciplineNote?: string;
+
   suspendedUntil?: string;
+
   expelledAt?: string;
 }
 
 export interface Attendance {
   id: string;
+
   eventId: string;
+
   memberId: string;
+
   memberName: string;
+
   confirmedAt: string | null;
+
+  // Também representa o horário real de chegada
   checkedInAt: string | null;
-  status: 'confirmado' | 'presente' | 'ausente' | 'pendente';
+
+  status:
+    | 'confirmado'
+    | 'presente'
+    | 'ausente'
+    | 'pendente';
 }
 
 export interface QueueEntry {
   id: string;
+
   eventId: string;
+
   memberId: string;
+
   memberName: string;
+
   position: number;
+
   joinedAt: string;
 }
 
 export interface Team {
   id: string;
+
   name: string;
+
   color: TeamColor;
+
   memberIds: string[];
+
   goalkeeperIds: string[];
+
   score: number;
+
   winsStreak: number;
 }
 
 export interface MatchEvent {
   id: string;
+
   matchId: string;
-  type: 'gol' | 'assistencia' | 'amarelo' | 'vermelho';
+
+  type:
+    | 'gol'
+    | 'assistencia'
+    | 'amarelo'
+    | 'vermelho';
+
   memberId: string;
+
   memberName: string;
+
   teamId: string;
+
   minute: number;
+
   note?: string;
 }
 
 export interface Match {
   id: string;
+
   eventId: string;
+
   matchNumber: number;
+
   teamA: Team;
+
   teamB: Team;
+
   scoreA: number;
+
   scoreB: number;
+
   status: MatchStatus;
+
   startedAt: string | null;
+
   finishedAt: string | null;
+
   durationSeconds: number;
+
   events: MatchEvent[];
+
   winnerTeamId: string | null;
+
   isPenalties: boolean;
+
   penaltyScoreA?: number;
+
   penaltyScoreB?: number;
 }
 
 export interface Payment {
   id: string;
+
   peladaId: string;
+
   memberId: string;
+
   memberName: string;
 
   type:
     | 'mensalidade'
     | 'diarista'
+    | 'colete'
     | 'convidado'
     | 'goleiro'
+    | 'juiz'
     | 'ativacao'
-    | 'multa';
+    | 'multa'
+    | 'acordo';
 
   amount: number;
+
   dueDate: string;
+
   paidDate: string | null;
+
   status: PaymentStatus;
 
   pixCode?: string;
+
   boletoCode?: string;
+
+  // Integração financeira
+
+  provider?: PaymentProvider;
+
+  externalReference?: string;
+
+  externalCustomerId?: string;
+
+  externalPaymentId?: string;
+
+  externalSubscriptionId?: string;
+
+  // Acordos de dívida
+
+  originalDebtAmount?: number;
+
+  negotiatedAmount?: number;
+
+  discountAmount?: number;
+
+  // true = pagamento do acordo quita o débito negociado
+  settlementAgreement?: boolean;
+
+  authorizedBy?: string;
+
+  agreementNote?: string;
+
+  // Diarista
+
+  dailyCreditStatus?: DailyCreditStatus;
+
+  // Evento ao qual a diária foi utilizada,
+  // quando já houver utilização
+  eventId?: string;
+
+  // true = jogador utilizou colete da própria pelada
+  vestProvidedByPelada?: boolean;
+
   disciplineRecordId?: string;
 }
 
 export interface DisciplineRecord {
   id: string;
+
   memberId: string;
+
   memberName: string;
+
   card: CardColor;
+
   reason: string;
+
   matchId?: string;
+
   eventId: string;
+
   date: string;
+
   consequence: string;
+
   active: boolean;
 
   // Regra efetivamente aplicada no momento do cartão
+
   action?: DisciplineAction;
+
   minutesOut?: number;
+
   suspensionEvents?: number;
+
   suspensionUntil?: string;
 
   fineAmount?: number;
+
   finePaymentId?: string;
+
   finePaidDate?: string | null;
 
   returnPolicy?: ReturnPolicy;
+
   ruleSnapshot?: string;
 }
 
 export interface RegisterDisciplineInput {
   memberId: string;
+
   eventId: string;
+
   matchId?: string;
+
   card: CardColor;
+
   reason: string;
 }
 
 export interface AppEvent {
   id: string;
+
   peladaId: string;
+
   name: string;
+
   date: string;
+
   startTime: string;
+
   endTime: string;
+
   place: string;
+
   type: EventType;
+
   status: EventStatus;
+
   capacity: number;
+
   createdAt: string;
 }
 
@@ -308,7 +528,9 @@ export interface AppEvent {
 
 export interface MatchFormat {
   playersPerTeam: number;
+
   hasGoalkeeper: boolean;
+
   maxReserves: number;
 
   substitutionType:
@@ -321,7 +543,9 @@ export interface MatchFormat {
 
 export interface MatchDuration {
   periods: 1 | 2;
+
   periodMinutes: number;
+
   intervalMinutes: number;
 
   clockType:
@@ -329,6 +553,7 @@ export interface MatchDuration {
     | 'parado_juiz';
 
   maxWaitMinutes: number;
+
   lateLimitMinutes: number;
 
   endCriterion:
@@ -353,12 +578,15 @@ export interface RefereeSettings {
     | 'pago_master';
 
   refereeName?: string;
+
   refereePix?: string;
 }
 
 export interface GoalkeeperSettings {
   isRequired: boolean;
+
   isMonthly: boolean;
+
   feePerEvent: number;
 
   paymentFrequency:
@@ -367,6 +595,7 @@ export interface GoalkeeperSettings {
     | 'mensal';
 
   paymentStatus: PaymentStatus;
+
   fixedGoalkeeper?: boolean;
 }
 
@@ -416,6 +645,7 @@ export interface TieSettings {
 
 export interface DisciplineSettings {
   // Estrutura antiga — mantida para não quebrar o seed atual
+
   yellowConsequence:
     | 'advertencia'
     | 'minutos_fora'
@@ -423,7 +653,9 @@ export interface DisciplineSettings {
     | 'vermelho';
 
   yellowMinutesOut: number;
+
   twoYellowSameEvent: boolean;
+
   yellowMonthLimit: number;
 
   yellowLimitConsequence:
@@ -441,6 +673,7 @@ export interface DisciplineSettings {
     | 'suspenso_x';
 
   redMinutesOut: number;
+
   redSuspensionCount: number;
 
   redMonthLimit1:
@@ -448,9 +681,11 @@ export interface DisciplineSettings {
     | 'suspensao';
 
   redMonthLimit2: number;
+
   redMonthLimit3: 'expulsao';
 
   // Novas regras — configuráveis por cada pelada
+
   yellowAccumulationPeriod?:
     | 'mes'
     | 'temporada';
@@ -458,28 +693,39 @@ export interface DisciplineSettings {
   yellowAccumulatedAction?: DisciplineAction;
 
   yellowFineEnabled?: boolean;
+
   yellowFineAmount?: number;
 
   redAction?: DisciplineAction;
+
   redSuspensionUntil?: string;
 
   redFineEnabled?: boolean;
+
   redFineAmount?: number;
 
   returnPolicy?: ReturnPolicy;
 
   fineDueDays?: number;
+
   fineBlocksReturn?: boolean;
 }
 
 export interface BehaviorRankingSettings {
   enabled: boolean;
+
   startScore: number;
+
   presencePoints: number;
+
   latePenalty: number;
+
   noShowPenalty: number;
+
   yellowPenalty: number;
+
   redPenalty: number;
+
   goodConductBonus: number;
 }
 
@@ -501,10 +747,15 @@ export interface FinancialRules {
 
   sharedCosts: {
     quadra: boolean;
+
     juiz: boolean;
+
     goleiros: boolean;
+
     coletes: boolean;
+
     bola: boolean;
+
     outros: boolean;
   };
 
@@ -517,36 +768,60 @@ export interface FinancialRules {
 
 export interface RuleSettings {
   matchFormat: MatchFormat;
+
   matchDuration: MatchDuration;
+
   refereeSettings: RefereeSettings;
+
   goalkeeperSettings: GoalkeeperSettings;
+
   queueSettings: QueueSettings;
+
   rotationSettings: RotationSettings;
+
   tieSettings: TieSettings;
+
   disciplineSettings: DisciplineSettings;
+
   behaviorRankingSettings: BehaviorRankingSettings;
+
   financialRules: FinancialRules;
 }
 
 export interface RuleChange {
   id: string;
+
   date: string;
+
   rule: string;
+
   oldValue: string;
+
   newValue: string;
+
   masterName: string;
 }
 
 export interface AppData {
   user: User;
+
   pelada: Pelada;
+
   members: Member[];
+
   events: AppEvent[];
+
   attendance: Attendance[];
+
   queue: QueueEntry[];
+
   matches: Match[];
+
   payments: Payment[];
+
   discipline: DisciplineRecord[];
+
   rules: RuleSettings;
+
   ruleChanges: RuleChange[];
 }

@@ -5,24 +5,85 @@ import { AuthPage } from './pages/AuthPage';
 
 import { DashboardOverview } from './pages/DashboardOverview';
 import { MinhaPeladaPage } from './pages/MinhaPeladaPage';
+import { CriarPeladaPage } from './pages/CriarPeladaPage';
 import { ParticipantesPage } from './pages/ParticipantesPage';
 import { FinanceiroPage } from './pages/FinanceiroPage';
 import { EventosPage } from './pages/EventosPage';
 import { DiaDeJogoPage } from './pages/DiaDeJogoPage';
 import { DisciplinaPage } from './pages/DisciplinaPage';
 import { RankingPage } from './pages/RankingPage';
+import { ConviteDiaristaPage } from './pages/ConviteDiaristaPage';
 
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { useData } from './context/DataContext';
 import { useRouter } from './router';
+import { rememberParticipantForAccountLink } from './services/participantLinking';
 
-type Screen = 'landing' | 'login' | 'cadastro' | 'sistema';
+type Screen =
+  | 'landing'
+  | 'login'
+  | 'cadastro'
+  | 'sistema';
 
 function App() {
-  const [screen, setScreen] = useState<Screen>('landing');
+  const [screen, setScreen] = useState<Screen>(() => {
+    const hash = window.location.hash.replace('#', '');
+
+    const rotasDoSistema = [
+      '/dashboard',
+      '/criar-pelada',
+      '/pelada',
+      '/participantes',
+      '/financeiro',
+      '/eventos',
+      '/dia-de-jogo',
+      '/disciplina',
+      '/ranking',
+      '/regras',
+      '/configuracoes',
+    ];
+
+    if (
+      rotasDoSistema.some(
+        (rota) =>
+          hash === rota ||
+          hash.startsWith(`${rota}/`)
+      )
+    ) {
+      return 'sistema';
+    }
+
+    return 'landing';
+  });
 
   const { data } = useData();
   const { route, navigate } = useRouter();
+
+  const conviteTokenPrefix =
+    '/convite/';
+
+  if (
+    route.startsWith(
+      conviteTokenPrefix
+    )
+  ) {
+    const token = route.slice(
+      conviteTokenPrefix.length
+    );
+
+    if (token) {
+      return (
+        <ConviteDiaristaPage
+          token={token}
+          onLinkAccount={(participantId, mode) => {
+            rememberParticipantForAccountLink(participantId);
+            setScreen(mode);
+            navigate(`/${mode}`);
+          }}
+        />
+      );
+    }
+  }
 
   const entrarNoSistema = () => {
     setScreen('sistema');
@@ -46,7 +107,9 @@ function App() {
     return (
       <AuthPage
         mode="login"
-        onBack={() => setScreen('landing')}
+        onBack={() =>
+          setScreen('landing')
+        }
         onSuccess={entrarNoSistema}
       />
     );
@@ -56,7 +119,9 @@ function App() {
     return (
       <AuthPage
         mode="cadastro"
-        onBack={() => setScreen('landing')}
+        onBack={() =>
+          setScreen('landing')
+        }
         onSuccess={entrarNoSistema}
       />
     );
@@ -66,6 +131,29 @@ function App() {
     let page;
 
     switch (route) {
+      case '/criar-pelada':
+        page = (
+          <CriarPeladaPage
+            onVoltar={() =>
+              navigate('/dashboard')
+            }
+            onCriada={(peladaId) => {
+              console.log(
+                'Pelada criada:',
+                peladaId
+              );
+
+              /*
+                Na próxima etapa vamos usar
+                este ID para selecionar a
+                pelada recém-criada.
+              */
+              navigate('/pelada');
+            }}
+          />
+        );
+        break;
+
       case '/pelada':
         page = <MinhaPeladaPage />;
         break;
@@ -124,7 +212,11 @@ function App() {
 
       case '/dashboard':
       default:
-       page = <DashboardOverview onNavigate={navigate} />;
+        page = (
+          <DashboardOverview
+            onNavigate={navigate}
+          />
+        );
         break;
     }
 
@@ -148,8 +240,12 @@ function App() {
 
   return (
     <LandingPage
-      onEnter={() => setScreen('login')}
-      onCreate={() => setScreen('cadastro')}
+      onEnter={() =>
+        setScreen('login')
+      }
+      onCreate={() =>
+        setScreen('cadastro')
+      }
     />
   );
 }

@@ -24,7 +24,6 @@ const styles: Record<string, string> = {
   encerrado: 'bg-gray-200 text-gray-500',
   // Match
   agendado: 'bg-gray-100 text-gray-600',
-  em_andamento: 'bg-green-100 text-green-700',
   finalizado: 'bg-gray-200 text-gray-500',
   penaltis: 'bg-yellow-100 text-yellow-700',
   // Generic

@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
 import { supabase } from '../lib/supabase';
+import { linkPendingParticipantToCurrentUser } from '@/services/participantLinking';
 
 type AuthMode = 'login' | 'cadastro';
 
@@ -55,11 +56,12 @@ export function AuthPage({
 
         if (!data.session) {
           setErro(
-            'Cadastro realizado. Confira seu e-mail para confirmar sua conta.'
+            'Cadastro realizado. Confira seu e-mail para confirmar a conta; depois entre para concluir o vínculo com sua inscrição.'
           );
           return;
         }
 
+        await linkPendingParticipantToCurrentUser();
         onSuccess();
         return;
       }
@@ -73,6 +75,7 @@ export function AuthPage({
         throw error;
       }
 
+      await linkPendingParticipantToCurrentUser();
       onSuccess();
     } catch (error) {
       setErro(
